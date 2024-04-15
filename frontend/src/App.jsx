@@ -1,14 +1,34 @@
-import React from 'react'
-//importo SOCKET
-import second from 'socket.io-client'
+import React, { useState } from 'react'
+import { io } from 'socket.io-client'
 
-//Aqui vamos a comunicarnos y recibir una respuesta
-const socket = io("http://localhost:3000")
+//Aqui nos estamos comunicando con el codigo
+const socket = io("/")
 
-function App() {
+export default function App() {
+
+  //Creamos un estado para llamar el mensaje
+  const [message, setMessage] = useState("")
+
+  //Creamos la funcion para manejar el envio del formulario
+  const handleSubmit = (e) => {
+    //evitara que refresque la pagina
+    e.prevetDefault()
+    console.log(message);
+  };
+
   return (
-    <div>Hi World</div>
-  )
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Write yor message ..."
+          //Cuando el usuario cambie el valor del input, pues voy actualizar el message
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <button>
+          Send
+        </button>
+      </form>
+    </div>
+  );
 }
-
-export default  App

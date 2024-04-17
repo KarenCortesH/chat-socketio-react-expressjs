@@ -12,13 +12,13 @@ const io = new SocketServer(server)
 
 //Crear escucha de los sockets cuando pase una conexion recibes el socket
 io.on('connection', socket => {
-    console.log(socket.id)
+    console.log('Client connected')
 
-    //Cuando me envien eventos me los escucha y los imprime en consola
-    socket.io('message', (data) => {
-        console.log('Mensaje recibido:', data);
-        //Vamos a enviar el mensaje que el user tipio
-        io.emit('message', data)
+    //Cuando me envien eventos me los escucha(el frontend escucha) y los imprime en consola
+    socket.on('message', (data) => {
+        console.log(data);
+        //Vamos a enviarle n evento al frontend mensaje a todos
+        socket.broadcast.emit('message', data)
     })
 })
 

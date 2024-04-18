@@ -5,44 +5,50 @@ const socket = io("/");
 
 export default function App() {
   const [message, setMessage] = useState('');
-  //arreglo vacio para tener mensajes 
   const [messages, setMessages] = useState([]);
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // Corregido el error de ortografía
-    console.log(message);
-    socket.emit('message', message); // Enviar el mensaje al servidor de socket
+    e.preventDefault();
+    const newMessage = {
+      body: message,
+      from: 'Me'
+    };
+    setMessages([...messages, newMessage]);
+    socket.emit("message", newMessage);
     setMessage(''); // Limpiar el input después de enviar el mensaje
   };
-  //Va escuchar cuando cargue la aplicacion por eventos de socket
-  useEffect(() => {
-    // Corregido el callback para que maneje el mensaje recibido
-    socket.on('message', message => {
-      console.log("Mensaje recibido:", message)
-      setMessages([...messages, message]);
-    });
 
-    // Limpia el listener cuando el componente se desmonta
+  useEffect(() => {
+    socket.on('message', receiveMessage);
     return () => {
-      socket.off('message');
+      socket.off("message", receiveMessage);
     };
   }, []);
 
+  const receiveMessage = (message) =>
+    setMessages((state) => [...state, message]);
+
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div className='h-screen bg-black text-white flex items-center justify-center'>
+      <h2 className='text-2xl text-white font-bold'></h2>
+      <form onSubmit={handleSubmit}
+      className='bg-zinc-900 p-10 my-2'>
         <input
           type="text"
           placeholder="Write your message ..."
           onChange={(e) => setMessage(e.target.value)}
-          value={message} // Enlazar el valor del input con el estado 'message'
+          className='border-2 border-zinc-500'
+          value={message} // Agregado: Enlazar el valor del input con el estado 'message'
         />
-        <button type="submit">Send</button> {/* Cambiado a type="submit" para que el botón envíe el formulario */}
       </form>
       <ul>
-        {messages.map(message => (
-          <li>{message}</li>
-        ))}
+        {
+          messages.map((message, i) => (
+            <li key={i}>
+              {message.from}: {message.body}
+            </li>
+          ))
+        }
       </ul>
     </div>
   );
